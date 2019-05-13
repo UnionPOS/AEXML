@@ -71,10 +71,42 @@ open class AEXMLElement {
             first = children.first(where: { $0.name == key })
         else {
             let errorElement = AEXMLElement(name: key)
-            errorElement.error = AEXMLError.elementNotFound
+            errorElement.error = AEXMLError.elementNotFound(key)
             return errorElement
         }
         return first
+    }
+    
+    open func getChildren(for tag: CodingKey) throws -> [AEXMLElement] {
+        let children = allDescendants(where: { $0.name == tag.stringValue })
+        guard !children.isEmpty else {
+            throw AEXMLError.elementNotFound(tag.description)
+        }
+        return children
+    }
+    
+    open func getValues(for tag: CodingKey) throws -> [String] {
+        let children = try getChildren(for: tag)
+        let values = children.compactMap { $0.value }
+        guard !values.isEmpty else {
+            throw AEXMLError.valueNotFound(tag.description)
+        }
+        return values
+    }
+    
+    open func getFirstChild(for tag: CodingKey) throws -> AEXMLElement {
+        guard let child = firstDescendant(where: { $0.name == tag.stringValue }) else {
+            throw AEXMLError.elementNotFound(tag.description)
+        }
+        return child
+    }
+    
+    open func getFirstValue(for tag: CodingKey) throws -> String {
+        let child = try getFirstChild(for: tag)
+        guard let value = child.value else {
+            throw AEXMLError.valueNotFound(tag.description)
+        }
+        return value
     }
     
     /// Returns all of the elements with equal name as `self` **(nil if not exists)**.
