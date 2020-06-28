@@ -24,10 +24,6 @@ let package = Package(
     targets: [
         .target(
             name: "AEXML"
-        ),
-        .testTarget(
-            name: "AEXMLTests",
-            dependencies: ["AEXML"]
         )
     ]
 )
